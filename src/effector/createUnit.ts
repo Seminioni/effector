@@ -31,7 +31,7 @@ import {createName} from './naming'
 import {createLinkNode} from './forward'
 import {watchUnit} from './watch'
 import {createSubscription} from './subscription'
-import {readTemplate, readSidRoot} from './region'
+import {readTemplate, readSidRoot, reportDeclaration} from './region'
 import {
   getSubscribers,
   getStoreState,
@@ -159,7 +159,7 @@ export function createEvent<Payload = any>(
   const template = readTemplate()
   const finalEvent = Object.assign(event, {
     graphite: createNode({
-      meta: initUnit(EVENT, event, config),
+      meta: initUnit(config.actualOp || EVENT, event, config),
       regional: true,
     }),
     create(params: Payload, _: any[]) {
@@ -191,9 +191,15 @@ export function createEvent<Payload = any>(
   if (config?.domain) {
     config.domain.hooks.event(finalEvent)
   }
+  reportDeclaration(finalEvent.graphite)
   return finalEvent
 }
-function on(store: Store<State>, methodName: string, nodeSet: CommonUnit | CommonUnit[], fn: Function) {
+function on(
+  store: Store<State>,
+  methodName: string,
+  nodeSet: CommonUnit | CommonUnit[],
+  fn: Function,
+) {
   assertNodeSet(nodeSet, methodName, 'first argument')
   assert(isFunction(fn), 'second argument should be a function')
   deprecate(
@@ -205,9 +211,7 @@ function on(store: Store<State>, methodName: string, nodeSet: CommonUnit | Commo
     store.off(trigger)
     getSubscribers(store).set(
       trigger,
-      createSubscription(
-        updateStore(trigger, store, 'on', callARegStack, fn),
-      ),
+      createSubscription(updateStore(trigger, store, 'on', callARegStack, fn)),
     )
   })
   return store
@@ -251,7 +255,9 @@ export function createStore<State>(
         scope: forkPage!,
       }),
     reset(...units: CommonUnit[]) {
-      forEach(units, unit => on(store, '.reset', unit, () => store.defaultState))
+      forEach(units, unit =>
+        on(store, '.reset', unit, () => store.defaultState),
+      )
       return store
     },
     on(nodeSet: CommonUnit | CommonUnit[], fn: Function) {
@@ -367,6 +373,8 @@ export function createStore<State>(
     store.reinit = createEvent<void>()
     store.reset(store.reinit)
   }
+
+  reportDeclaration(store.graphite)
 
   return store
 }
