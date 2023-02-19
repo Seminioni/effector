@@ -123,7 +123,7 @@ export function createScope(unit?: Domain): Scope {
       scope: {forkInFlightCounter},
     }),
     additionalLinks: {},
-    handlers: {},
+    handlers: {sidMap: {}, idMap: {}},
     fxCount: forkInFlightCounter,
     storeChange,
     warnSerializeNode,

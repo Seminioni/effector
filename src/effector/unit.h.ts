@@ -176,7 +176,10 @@ export interface Scope extends Unit {
   sidIdMap: Record<string, string>
   sidSerializeMap: Record<string, (p: any) => any>
   additionalLinks: Record<string, Node[]>
-  handlers: Record<string, (params: unknown) => any>
+  handlers: {
+    sidMap: Record<string, (params: unknown) => any>
+    idMap: Record<string, (params: unknown) => any>
+  }
   fxCount: Node
   storeChange: Node
   /** if any affected store is missing sid, then scope cannot be serialized correctly and data will be missing */
