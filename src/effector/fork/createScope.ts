@@ -68,7 +68,7 @@ export function createScope(unit?: Domain): Scope {
             const id = storeNode.scope.state.id
             const sid = getMeta(storeNode, 'sid')
             forkPage.sidIdMap[sid] = id
-            forkPage.sidValuesMap[sid] = value
+            forkPage.values.sidMap[sid] = value
 
             const serialize = getMeta(storeNode, 'serialize')
             if (serialize && serialize !== 'ignore') {
@@ -102,7 +102,7 @@ export function createScope(unit?: Domain): Scope {
   const resultScope: Scope = {
     cloneOf: unit,
     reg: page,
-    sidValuesMap: {},
+    values: {sidMap: {}, idMap: {}},
     sidIdMap: {},
     sidSerializeMap: {},
     getState(store: StateRef | Store<any>) {
@@ -123,7 +123,7 @@ export function createScope(unit?: Domain): Scope {
       scope: {forkInFlightCounter},
     }),
     additionalLinks: {},
-    handlers: {sidMap: {}, idMap: {}},
+    handlers: {sidMap: {}, unitMap: new Map()},
     fxCount: forkInFlightCounter,
     storeChange,
     warnSerializeNode,

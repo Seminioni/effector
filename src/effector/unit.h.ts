@@ -171,14 +171,18 @@ export interface Scope extends Unit {
   cloneOf?: Domain
   getState<T>(store: Store<T>): T
   getState(ref: StateRef): unknown
-  /** value could be set only for stores with sid (they can be created by createStore, restore and combine) */
-  sidValuesMap: Record<string, any>
+  values: {
+    sidMap: Record<string, any>
+    /** map of sidless stores, ids are StateRef ids */
+    idMap: Record<string, any>
+  }
   sidIdMap: Record<string, string>
   sidSerializeMap: Record<string, (p: any) => any>
   additionalLinks: Record<string, Node[]>
   handlers: {
     sidMap: Record<string, (params: unknown) => any>
-    idMap: Record<string, (params: unknown) => any>
+    /** map of sidless effects */
+    unitMap: Map<Unit<any>, (params: unknown) => any>
   }
   fxCount: Node
   storeChange: Node
